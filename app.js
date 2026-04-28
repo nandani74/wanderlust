@@ -60,7 +60,7 @@ const sessionOption={
   store,
   secret: process.env.SECRET,
   resave:false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
     expires:Date.now() + 7 * 24 * 60 *60 * 1000,
     maxAge: 7 * 24 * 60 *60 * 1000,
@@ -99,11 +99,10 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   let { statusCode = 500, message = "Something went wrong" } = err;
   res.status(statusCode).render("error.ejs",{ message });
-  //res.status(statusCode).send(message);
 });
 
 const PORT = process.env.PORT || 8080;
 
-app.listen(8080, () => {
-  console.log("server is listening to port 8080");
+app.listen(PORT, () => {
+  console.log(`server is listening to port ${PORT}`);
 });
