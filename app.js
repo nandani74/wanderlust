@@ -13,7 +13,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
-const localStrategy = require("passport-local");
+const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 
 const listingRouter = require("./routes/listing.js");
@@ -22,13 +22,19 @@ const userRouter = require("./routes/user.js");
 
 const dbUrl = process.env.ATLASDB_URL;
 
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.engine("ejs", ejsMate);
+app.use(express.static(path.join(__dirname, "public")));
 
 async function main() {
   await mongoose.connect(dbUrl);
   console.log("connected to DB");
 
   const store = MongoStore.create({
-    mongoUrl: process.env.ATLASDB_URL,
+    client: mongoose.connection.getClient(),
     crypto: {
       secret: process.env.SECRET,
     },
@@ -54,14 +60,12 @@ async function main() {
   app.use(session(sessionOption));
   app.use(flash());
 
- 
   app.use(passport.initialize());
   app.use(passport.session());
-  passport.use(new localStrategy(User.authenticate()));
+  passport.use(new LocalStrategy(User.authenticate()));
 
   passport.serializeUser(User.serializeUser());
   passport.deserializeUser(User.deserializeUser());
-
 
   app.use((req, res, next) => {
     res.locals.success = req.flash("success");
@@ -70,12 +74,10 @@ async function main() {
     next();
   });
 
-
   app.use("/listings", listingRouter);
   app.use("/listings/:id/reviews", reviewRouter);
   app.use("/", userRouter);
 
- 
   app.use((req, res, next) => {
     next(new ExpressError(404, "Page Not Found!"));
   });
@@ -85,21 +87,10 @@ async function main() {
     res.status(statusCode).render("error.ejs", { message });
   });
 
-
   const PORT = process.env.PORT || 8080;
   app.listen(PORT, () => {
     console.log(`server is listening to port ${PORT}`);
   });
 }
 
-
-main().catch((err) => {
-  console.log(err);
-});
-
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
-app.engine("ejs", ejsMate);
-app.use(express.static(path.join(__dirname, "public")));
+main().catch((err) => console.log(err));
