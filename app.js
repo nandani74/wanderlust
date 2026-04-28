@@ -35,12 +35,10 @@ async function main() {
 
   const store = MongoStore.create({
   mongoUrl: process.env.ATLASDB_URL,
-  mongooseConnection: mongoose.connection,
-  crypto: {
-    secret: process.env.SECRET,
-  },
+  secret: process.env.SECRET,
   touchAfter: 24 * 3600,
 });
+
 
   store.on("error", (err) => {
     console.log("ERROR IN MONGO SESSION STORE", err);
