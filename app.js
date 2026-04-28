@@ -87,14 +87,6 @@ app.use((req, res ,next)=>{
   next();
 });
 
-// app.get("/demouser",async(req,res)=>{
-//   let fakeUser=new User({
-//     email:"student@gmail.com",
-//     username:"delta-student"
-//   });
-//   let registeredUser = await User.register(fakeUser,"helloworld");
-//   res.send(registeredUser);
-// })
 
 app.use("/listings",listingRouter);
 app.use("/listings/:id/reviews",reviewRouter);
@@ -109,6 +101,8 @@ app.use((err, req, res, next) => {
   res.status(statusCode).render("error.ejs",{ message });
   //res.status(statusCode).send(message);
 });
+
+const PORT = process.env.PORT || 8080;
 
 app.listen(8080, () => {
   console.log("server is listening to port 8080");
