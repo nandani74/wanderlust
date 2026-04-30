@@ -75,7 +75,10 @@ app.use(session(sessionOption));
   });
 
   app.get("/", (req, res) => {
-  res.redirect("/listings");
+  if (!req.isAuthenticated()) {
+    return res.redirect("/login");   
+  }
+  res.redirect("/listings");         
 });
 
   app.use("/listings", listingRouter);
