@@ -35,7 +35,7 @@ async function main() {
   console.log("connected to DB");
 
 const store = MongoStore.create({
-  mongoUrl: process.env.ATLASDB_URL,
+  mongoUrl: dbUrl,
   collectionName: "sessions",
 });
 
@@ -44,8 +44,8 @@ store.on("error", (err) => {
 });
 
 const sessionOption = {
-  store,                         // ✅ use MongoStore
-  secret: process.env.SECRET,    // ✅ use env variable
+  store,
+  secret: process.env.SECRET || "mysupersecret",
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -56,6 +56,7 @@ const sessionOption = {
 };
 
 app.use(session(sessionOption));
+
 
   app.use(flash());
 
