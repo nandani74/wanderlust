@@ -1,126 +1,182 @@
 <% layout("/layouts/boilerplate") %> 
 
 <style>
+  /* MAIN CONTAINER */
   #filters {
-    display:flex;
-    flex-wrap: wrap;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  .filter{
+  /* LEFT SIDE FILTERS */
+  .filters-left {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .filter {
     text-align: center;
-    margin-right: 2rem;
-    margin-top: 2rem;
     opacity: 0.7;
   }
 
-  .filter:hover{
+  .filter:hover {
     opacity: 1;
     cursor: pointer;
   }
 
-  .filter p{
+  .filter p {
     font-size: 0.8rem;
+    margin: 0;
   }
 
+  /* RIGHT SIDE TOGGLE */
+  .filters-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .tax-toggle {
+    border: 1px solid black;
+    border-radius: 1rem;
+    padding: 0.4rem 1rem;
+  }
+
+  /* TAX TEXT HIDDEN BY DEFAULT */
   .tax-info {
     display: none;
   }
 
-  .tax-toggle{
-    border: 1px solid black;
-    border-radius: 1rem;
-    height: 3.25rem;
-    padding: 1rem;
-    margin-left: 3rem;
-    display: flex;
-    align-items: center;
-    margin-top:1rem;
+  /* RESPONSIVE (mobile view) */
+  @media (max-width: 768px) {
+    #filters {
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .filters-left {
+      flex-wrap: wrap;
+    }
   }
 </style>
 
-  <div id="filters">
+
+<!-- FILTER SECTION -->
+<div id="filters">
+
+  <!-- LEFT SIDE -->
+  <div class="filters-left">
+
     <div class="filter">
       <div><i class="fa-solid fa-fire"></i></div>
       <p>Trending</p>
     </div>
+
     <div class="filter">
       <div><i class="fa-solid fa-bed"></i></div>
       <p>Rooms</p>
     </div>
+
     <div class="filter">
       <div><i class="fa-solid fa-mountain-city"></i></div>
       <p>Iconic Cities</p>
     </div>
+
     <div class="filter">
       <div><i class="fa-solid fa-mountain"></i></div>
       <p>Mountains</p>
     </div>
+
     <div class="filter">
       <div><i class="fa-brands fa-fort-awesome"></i></div>
       <p>Castles</p>
     </div>
+
     <div class="filter">
       <div><i class="fa-solid fa-person-swimming"></i></div>
       <p>Amazing pools</p>
     </div>
-    <div class="filter">
-      <div><i class="fa-solid fa-campground"></i></div>
-      <p>Camping</p>
-    </div>
-    <div class="filter">
-      <div><i class="fa-solid fa-cow"></i></div>
-      <p>Farms</p>
-    </div>
-    <div class="filter">
-      <div><i class="fa-solid fa-snowflake"></i></div>
-      <p>Arctic</p>
-    </div>
-    <div class="filter">
-      <div><i class="fa-solid fa-igloo"></i></div>
-      <p>Domes</p>
-    </div>
-    <div class="filter">
-      <div><i class="fa-solid fa-sailboat"></i></div>
-      <p>Boats</p>
-    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="filters-right">
     <div class="tax-toggle">
       <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
-      <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+        <input class="form-check-input" type="checkbox" id="switchCheckDefault">
+        <label class="form-check-label" for="switchCheckDefault">
+          Display total after taxes
+        </label>
       </div>
     </div>
   </div>
+
+</div>
+
+
+<!-- LISTINGS -->
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
   <% for (let listing of allListings) { %>
-  <a href="/listings/<%=listing._id %> "  class="listing-link">
-    <div class="card col listing-card">
-      <div class="card h-100 border-0">
-        <img src="<%= listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2' %>"  class="card-img-top" alt="listing image" style="height:20rem">
-        <div class="card-body">
-          <p class="card-text">
-            <b><%= listing.title %></b><br>
-            ₹ <%= listing.price.toLocaleString("en-IN") %> /night
-            <i class="tax-info"> &nbsp;  +18% GST</i>
-          </p>
+
+    <a href="/listings/<%= listing._id %>" class="listing-link">
+      <div class="card col listing-card">
+        <div class="card h-100 border-0">
+
+          <img 
+            src="<%= listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2' %>" 
+            class="card-img-top" 
+            alt="listing image" 
+            style="height:20rem"
+          >
+
+          <div class="card-body">
+            <p class="card-text">
+              <b><%= listing.title %></b><br>
+
+              <!-- BASE PRICE -->
+              <span class="base-price">
+                ₹ <%= listing.price.toLocaleString("en-IN") %>
+              </span>
+
+              <!-- PRICE WITH TAX -->
+              <span class="tax-price" style="display:none;">
+                ₹ <%= Math.round(listing.price * 1.18).toLocaleString("en-IN") %>
+              </span>
+
+              /night
+
+              <span class="tax-info"> &nbsp;(incl. 18% GST)</span>
+            </p>
+          </div>
+
         </div>
       </div>
-    </div>
-  </a>
+    </a>
+
   <% } %>
 </div>
 
 
+<!-- SCRIPT -->
 <script>
-  let taxSwitch = document.getElementById("switchCheckDefault");
-  taxSwitch.addEventListener("change",()=>{
-    let taxInfo = document.getElementsByClassName("tax-info");
-    for(let info of taxInfo){
-      if(info.style.display != "inline"){
-        info.style.display = "inline";
-      }else{
-        info.style.display = "none";
+  const taxSwitch = document.getElementById("switchCheckDefault");
+
+  taxSwitch.addEventListener("change", () => {
+    const taxInfo = document.getElementsByClassName("tax-info");
+    const basePrices = document.getElementsByClassName("base-price");
+    const taxPrices = document.getElementsByClassName("tax-price");
+
+    for (let i = 0; i < taxInfo.length; i++) {
+
+      if (taxSwitch.checked) {
+        taxInfo[i].style.display = "inline";
+        basePrices[i].style.display = "none";
+        taxPrices[i].style.display = "inline";
+      } else {
+        taxInfo[i].style.display = "none";
+        basePrices[i].style.display = "inline";
+        taxPrices[i].style.display = "none";
       }
-      
+
     }
-  })
+  });
 </script>
