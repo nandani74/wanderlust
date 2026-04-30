@@ -35,8 +35,6 @@
                 <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation"> 
                     <fieldset class="starability-slot">
                         <legend>Rating:</legend>
-                        <input type="radio" id="no-rate" class="input-no-rate" 
-                               name="review[rating]" value="" checked />
 
                         <input type="radio" id="rate1" name="review[rating]" value="1" required />
                         <label for="rate1" title="Terrible">1 star</label>

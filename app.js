@@ -20,7 +20,8 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-const dbUrl = process.env.ATLASDB_URL;
+const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
+
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
@@ -33,30 +34,29 @@ async function main() {
   await mongoose.connect(dbUrl);
   console.log("connected to DB");
 
-  const store = MongoStore.create({
+const store = MongoStore.create({
   mongoUrl: process.env.ATLASDB_URL,
-  secret: process.env.SECRET,
-  touchAfter: 24 * 3600,
+  collectionName: "sessions",
 });
 
+store.on("error", (err) => {
+  console.log("ERROR IN MONGO SESSION STORE", err);
+});
 
-  store.on("error", (err) => {
-    console.log("ERROR IN MONGO SESSION STORE", err);
-  });
+const sessionOption = {
+  store,                         // ✅ use MongoStore
+  secret: process.env.SECRET,    // ✅ use env variable
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  },
+};
 
-  const sessionOption = {
-    store,
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true,
-    },
-  };
+app.use(session(sessionOption));
 
-  app.use(session(sessionOption));
   app.use(flash());
 
   app.use(passport.initialize());
@@ -73,6 +73,10 @@ async function main() {
     next();
   });
 
+  app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
+
   app.use("/listings", listingRouter);
   app.use("/listings/:id/reviews", reviewRouter);
   app.use("/", userRouter);
@@ -82,9 +86,13 @@ async function main() {
   });
 
   app.use((err, req, res, next) => {
-    let { statusCode = 500, message = "Something went wrong" } = err;
-    res.status(statusCode).render("error.ejs", { message });
-  });
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  let { statusCode = 500, message = "Something went wrong" } = err;
+  res.status(statusCode).render("error.ejs", { message });
+});
 
   const PORT = process.env.PORT || 8080;
   app.listen(PORT, () => {
