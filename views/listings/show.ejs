@@ -33,24 +33,30 @@
                 <h4>Leave a Review</h4>
 
                 <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation"> 
-                    <fieldset class="starability-slot">
-                        <legend>Rating:</legend>
+                    <div class="mb-3">
+  <label class="form-label">Rating:</label>
 
-                        <input type="radio" id="rate1" name="review[rating]" value="1" required />
-                        <label for="rate1" title="Terrible">1 star</label>
+<div class="starability-slot">
+  <input type="radio" name="review[rating]" value="" checked hidden>
 
-                        <input type="radio" id="rate2" name="review[rating]" value="2" />
-                        <label for="rate2" title="Not good">2 stars</label>
+  <input type="radio" name="review[rating]" id="star5-<%= listing._id %>" value="5" required>
+  <label for="star5-<%= listing._id %>">★</label>
 
-                        <input type="radio" id="rate3" name="review[rating]" value="3" />
-                        <label for="rate3" title="Average">3 stars</label>
+  <input type="radio" name="review[rating]" id="star4-<%= listing._id %>" value="4">
+  <label for="star4-<%= listing._id %>">★</label>
 
-                        <input type="radio" id="rate4" name="review[rating]" value="4" />
-                        <label for="rate4" title="Very good">4 stars</label>
+  <input type="radio" name="review[rating]" id="star3-<%= listing._id %>" value="3">
+  <label for="star3-<%= listing._id %>">★</label>
 
-                        <input type="radio" id="rate5" name="review[rating]" value="5" />
-                        <label for="rate5" title="Amazing">5 stars</label>
-                    </fieldset>
+  <input type="radio" name="review[rating]" id="star2-<%= listing._id %>" value="2">
+  <label for="star2-<%= listing._id %>">★</label>
+
+  <input type="radio" name="review[rating]" id="star1-<%= listing._id %>" value="1">
+  <label for="star1-<%= listing._id %>">★</label>
+</div>
+
+
+</div>
 
                     <div class="mb-3 mt-3">
                         <label for="comment" class="form-label">Comments</label>

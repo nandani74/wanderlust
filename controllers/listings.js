@@ -1,10 +1,29 @@
 const Listing = require("../models/listing");
 
-
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  let { category, search } = req.query;
+
+  let filter = {};
+
+  // CATEGORY FILTER
+  if (category && category !== "Trending") {
+    filter.category = category;
+  }
+
+  // SEARCH FILTER
+  if (search && search.trim() !== "") {
+    filter.title = { $regex: search, $options: "i" };
+  }
+
+  const allListings = await Listing.find(filter);
+
+  res.render("listings/index.ejs", {
+    allListings,
+    category,
+    search
+  });
 };
+
 
 module.exports.renderNewForm = (req, res) => {
   res.render("listings/new.ejs");
@@ -61,9 +80,7 @@ module.exports.updateListing = async (req, res) => {
   let filename = req.file.filename;
   listing.image = { url, filename };
   await listing.save();
-  }
-  
-
+  }  
   req.flash("success" , "Listing Updated!");
   res.redirect(`/listings/${id}`);
 }
